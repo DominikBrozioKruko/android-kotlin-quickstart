@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.android_kotlin_quickstart.ui.AppNavGraph
 import com.example.android_kotlin_quickstart.ui.theme.Android_kotlin_quickstartTheme
 import com.example.android_kotlin_quickstart.ui.screens.HomeScreen
 import com.example.android_kotlin_quickstart.viewmodel.HomeViewModel
@@ -22,7 +23,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            HomeScreen(viewModel)
+            AppNavGraph(homeViewModel = viewModel)
         }
     }
 }
