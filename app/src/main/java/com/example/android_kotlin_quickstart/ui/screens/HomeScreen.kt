@@ -1,6 +1,7 @@
 package com.example.android_kotlin_quickstart.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -27,9 +27,9 @@ import com.example.android_kotlin_quickstart.ui.theme.CouchbaseRed
 import com.example.android_kotlin_quickstart.viewmodel.HomeViewModel
 
 @Composable
-fun HomeScreen(homeViewModel: HomeViewModel) {
-    val uiState = remember { homeViewModel.uiState }
-    var queryState = homeViewModel.liveQueryState.observeAsState(initial = null)
+fun HomeScreen(viewModel: HomeViewModel, onHotelSelected: (Hotel) -> Unit) {
+    val uiState = remember { viewModel.uiState }
+    var queryState = viewModel.liveQueryState.observeAsState(initial = null)
     val errorMessage by ErrorManager.errorState.collectAsState()
 
 
@@ -46,7 +46,7 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
             queryState.value?.let { queryStateValue ->
                 LazyColumn {
                     items(queryStateValue) { hotel ->
-                        HotelCard(hotel)
+                        HotelCard(hotel,onHotelSelected = onHotelSelected)
                     }
                 }
             } ?: run {
@@ -77,9 +77,6 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
         }
 
         Box(modifier = Modifier.fillMaxSize()) {
-            // Your main content here
-
-            // Error overlay
             errorMessage?.let { errorModel ->
                 ErrorBanner(
                     error = errorModel,
@@ -91,10 +88,13 @@ fun HomeScreen(homeViewModel: HomeViewModel) {
 }
 
 @Composable
-fun HotelCard(hotel: Hotel) {
+fun HotelCard(hotel: Hotel,onHotelSelected: (Hotel) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable {
+                onHotelSelected(hotel)
+            }
             .padding(10.dp)
             .graphicsLayer {
                 shadowElevation = 5f
@@ -104,6 +104,7 @@ fun HotelCard(hotel: Hotel) {
             }
             .background(Color.White, RoundedCornerShape(5.dp))
             .padding(16.dp),
+
         horizontalAlignment = Alignment.Start
     ) {
         Text(

@@ -10,6 +10,8 @@ import com.example.android_kotlin_quickstart.DBManager
 import com.example.android_kotlin_quickstart.data.model.Hotel
 import com.example.android_kotlin_quickstart.data.model.HotelDocumentModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -19,8 +21,6 @@ import java.lang.ref.WeakReference
 class HomeViewModel(private val context: WeakReference<Context>) : ViewModel() {
     var uiState = "Loading hotels..."
     val liveQueryState: MutableLiveData<MutableList<Hotel>?> by lazy { MutableLiveData<MutableList<Hotel>?>(null) }
-
-
     init {
         loadData()
     }
