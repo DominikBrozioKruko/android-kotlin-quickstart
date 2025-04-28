@@ -1,12 +1,13 @@
 package com.example.android_kotlin_quickstart.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -25,9 +26,23 @@ import com.example.android_kotlin_quickstart.data.model.AppError
 import com.example.android_kotlin_quickstart.data.model.Hotel
 import com.example.android_kotlin_quickstart.ui.theme.CouchbaseRed
 import com.example.android_kotlin_quickstart.viewmodel.HomeViewModel
+import androidx.compose.material.DismissDirection
+import androidx.compose.material.DismissValue
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.SwipeToDismiss
+import androidx.compose.material.rememberDismissState
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel, onHotelSelected: (Hotel) -> Unit) {
+fun HomeScreen(
+    viewModel: HomeViewModel,
+    onHotelSelected: (Hotel) -> Unit,
+    onAddHotel:() -> Unit,
+    onEditHotel: (Hotel) -> Unit) {
     val uiState = remember { viewModel.uiState }
     var queryState = viewModel.liveQueryState.observeAsState(initial = null)
     val errorMessage by ErrorManager.errorState.collectAsState()
@@ -46,7 +61,7 @@ fun HomeScreen(viewModel: HomeViewModel, onHotelSelected: (Hotel) -> Unit) {
             queryState.value?.let { queryStateValue ->
                 LazyColumn {
                     items(queryStateValue) { hotel ->
-                        HotelCard(hotel,onHotelSelected = onHotelSelected)
+                        SwipeableHotelCard(hotel,onHotelSelected = onHotelSelected, onEditHotel = onEditHotel)
                     }
                 }
             } ?: run {
@@ -72,8 +87,24 @@ fun HomeScreen(viewModel: HomeViewModel, onHotelSelected: (Hotel) -> Unit) {
                 text = "Hotel management app",
                 color = Color.White,
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.Center)
             )
+
+            IconButton(
+                onClick = {
+                    onAddHotel()
+                },
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 5.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add",
+                    tint = Color.White
+                )
+            }
         }
 
         Box(modifier = Modifier.fillMaxSize()) {
@@ -87,55 +118,119 @@ fun HomeScreen(viewModel: HomeViewModel, onHotelSelected: (Hotel) -> Unit) {
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun SwipeableHotelCard(hotel: Hotel, onHotelSelected: (Hotel) -> Unit, onEditHotel: (Hotel) -> Unit) {
+    val dismissState = rememberDismissState()
+
+    LaunchedEffect(dismissState.currentValue) {
+        when {
+            dismissState.isDismissed(DismissDirection.StartToEnd) -> {
+                onEditHotel(hotel)
+                dismissState.reset()
+            }
+            dismissState.isDismissed(DismissDirection.EndToStart) -> {
+                //onDelete(item)
+                dismissState.reset()
+            }
+        }
+    }
+
+    SwipeToDismiss(
+        state = dismissState,
+        directions = setOf(
+            DismissDirection.StartToEnd,  // Edit
+            DismissDirection.EndToStart   // Delete
+        ),
+        background = {
+            val direction = dismissState.dismissDirection ?: return@SwipeToDismiss
+            val color = when (direction) {
+                DismissDirection.StartToEnd -> Color.Blue
+                DismissDirection.EndToStart -> Color.Red
+            }
+
+            val icon = when (direction) {
+                DismissDirection.StartToEnd -> Icons.Default.Edit
+                DismissDirection.EndToStart -> Icons.Default.Delete
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color)
+                    .padding(horizontal = 20.dp),
+                contentAlignment = when (direction) {
+                    DismissDirection.StartToEnd -> Alignment.CenterStart
+                    DismissDirection.EndToStart -> Alignment.CenterEnd
+                }
+            ) {
+                Icon(icon, contentDescription = null, tint = Color.White)
+            }
+        },
+        dismissContent = {
+            HotelCard(hotel = hotel, onHotelSelected = onHotelSelected)
+        }
+    )
+}
+
 @Composable
 fun HotelCard(hotel: Hotel,onHotelSelected: (Hotel) -> Unit) {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {
-                onHotelSelected(hotel)
-            }
-            .padding(10.dp)
-            .graphicsLayer {
-                shadowElevation = 5f
-                shape = RoundedCornerShape(5.dp)
-                clip = true
-                translationY = 3f
-            }
-            .background(Color.White, RoundedCornerShape(5.dp))
-            .padding(16.dp),
-
-        horizontalAlignment = Alignment.Start
+            .background(Color.White)
     ) {
-        Text(
-            text = hotel.name ?: "",
-            style = TextStyle(
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
-                color = Color.Black
-            ),
-            modifier = Modifier.padding(bottom = 5.dp)
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) {
+                    onHotelSelected(hotel)
+                }
+                .padding(10.dp)
+                .graphicsLayer {
+                    shadowElevation = 5f
+                    shape = RoundedCornerShape(5.dp)
+                    clip = true
+                    translationY = 3f
+                }
+                .background(Color.White, RoundedCornerShape(5.dp))
+                .padding(16.dp),
 
-        Text(
-            text = "${hotel.address ?: ""} ${hotel.city ?: ""} ${hotel.country}",
-            style = TextStyle(
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 16.sp,
-                color = Color.Gray
-            ),
-            modifier = Modifier.padding(bottom = 5.dp)
-        )
-
-        hotel.phone?.let {
+            horizontalAlignment = Alignment.Start
+        ) {
             Text(
-                text = it,
+                text = hotel.name ?: "",
+                style = TextStyle(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    color = Color.Black
+                ),
+                modifier = Modifier.padding(bottom = 5.dp)
+            )
+
+            Text(
+                text = "${hotel.address ?: ""} ${hotel.city ?: ""} ${hotel.country}",
                 style = TextStyle(
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp,
                     color = Color.Gray
-                )
+                ),
+                modifier = Modifier.padding(bottom = 5.dp)
             )
+
+            hotel.phone?.let {
+                Text(
+                    text = it,
+                    style = TextStyle(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 16.sp,
+                        color = Color.Gray
+                    )
+                )
+            }
         }
     }
 }
@@ -150,7 +245,7 @@ fun ErrorBanner(
             .fillMaxSize()
             .background(Color.Black.copy(alpha = 0.3f))
             .pointerInput(Unit) {
-                detectTapGestures {  }
+                detectTapGestures { }
             }
             .padding(32.dp),
         contentAlignment = Alignment.Center

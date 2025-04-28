@@ -17,12 +17,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.android_kotlin_quickstart.data.model.Hotel
 import com.example.android_kotlin_quickstart.data.model.Review
 import com.example.android_kotlin_quickstart.viewmodel.HotelDetailsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HotelDetailsScreen(viewModel: HotelDetailsViewModel,navController: NavController) {
+fun HotelDetailsScreen(viewModel: HotelDetailsViewModel,navController: NavController,onEditHotel: (Hotel) -> Unit) {
     val hotel by viewModel.hotel.collectAsState()
 
     Scaffold(
@@ -37,6 +38,13 @@ fun HotelDetailsScreen(viewModel: HotelDetailsViewModel,navController: NavContro
                             imageVector = Icons.AutoMirrored.Default.ArrowBack,
                             contentDescription = "Back"
                         )
+                    }
+                },
+                actions = {
+                    TextButton(onClick = {
+                        hotel?.let { onEditHotel(it) }
+                    }) {
+                        Text("EDIT",fontSize = 16.sp, color = Color.Blue)
                     }
                 }
             )
@@ -66,7 +74,7 @@ fun HotelDetailsScreen(viewModel: HotelDetailsViewModel,navController: NavContro
                             InfoRow("State", it.state)
                             InfoRow("Country", it.country)
                             InfoRow("Coordinates", "${it.geo?.lat ?: 0.0}, ${it.geo?.lon ?: 0.0}")
-                            InfoRow("Accuracy", it.type)
+                            InfoRow("Accuracy", it.geo.accuracy)
                             InfoRow("Phone", it.phone)
                             InfoRow("Toll-Free", it.tollfree)
                             InfoRow("Email", it.email)
@@ -100,7 +108,7 @@ fun HotelDetailsScreen(viewModel: HotelDetailsViewModel,navController: NavContro
 }
 
 @Composable
-fun InfoRow(label: String, value: String?) {
+private fun InfoRow(label: String, value: String?) {
     if (!value.isNullOrBlank()) {
         Text("$label: $value")
     }
