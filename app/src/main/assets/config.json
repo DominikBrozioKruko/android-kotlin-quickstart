@@ -1,5 +1,5 @@
 {
-  "remoteCapellaEndpointURL": "",
-  "userName": "",
-  "password": ""
+  "remoteCapellaEndpointURL": "wss://h9jhv1hret7h95jy.apps.cloud.couchbase.com:4984/hotels-endpoint",
+  "userName": "testAppUser",
+  "password": "Nsi?cyN3kXj[_E2=*@"
 }

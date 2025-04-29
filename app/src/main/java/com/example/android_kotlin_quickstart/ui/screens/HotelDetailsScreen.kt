@@ -8,6 +8,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.materialIcon
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -30,21 +31,30 @@ fun HotelDetailsScreen(viewModel: HotelDetailsViewModel,navController: NavContro
         topBar = {
             TopAppBar(
                 title = { Text("Hotel Details") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.secondary),
                 navigationIcon = {
                     IconButton(onClick = {
-                        navController.popBackStack() // <- Go back on press
+                        navController.popBackStack()
                     }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                            tint = MaterialTheme.colorScheme.secondary,
                             contentDescription = "Back"
                         )
                     }
                 },
                 actions = {
-                    TextButton(onClick = {
+                    TextButton(
+                        onClick = {
                         hotel?.let { onEditHotel(it) }
-                    }) {
-                        Text("EDIT",fontSize = 16.sp, color = Color.Blue)
+                        },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text("EDIT",fontSize = 16.sp)
                     }
                 }
             )
@@ -65,7 +75,7 @@ fun HotelDetailsScreen(viewModel: HotelDetailsViewModel,navController: NavContro
                     Spacer(Modifier.height(12.dp))
                     Surface(
                         shape = RoundedCornerShape(10.dp),
-                        color = Color(0xFFF2F2F7),
+                        color = MaterialTheme.colorScheme.background,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
@@ -110,7 +120,7 @@ fun HotelDetailsScreen(viewModel: HotelDetailsViewModel,navController: NavContro
 @Composable
 private fun InfoRow(label: String, value: String?) {
     if (!value.isNullOrBlank()) {
-        Text("$label: $value")
+        Text("$label: $value",color = MaterialTheme.colorScheme.secondary)
     }
 }
 
@@ -118,7 +128,7 @@ private fun InfoRow(label: String, value: String?) {
 fun ReviewsSection(reviews: List<Review>) {
     Surface(
         shape = RoundedCornerShape(10.dp),
-        color = Color(0xFFF2F2F7),
+        color = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
@@ -142,7 +152,7 @@ fun ReviewsSection(reviews: List<Review>) {
                     Text(
                         text = "Date: ${review.date}",
                         style = MaterialTheme.typography.labelSmall,
-                        color = Color.Gray
+                        color = MaterialTheme.colorScheme.tertiary
                     )
                 }
                 Divider(modifier = Modifier.padding(vertical = 8.dp))

@@ -32,12 +32,16 @@ fun AddEditHotelScreen(viewModel: AddEditHotelViewModel, navController: NavContr
         topBar = {
             TopAppBar(
                 title = { Text(title) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.secondary),
                 navigationIcon = {
                     IconButton(onClick = {
                         navController.popBackStack()
                     }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                            tint = MaterialTheme.colorScheme.secondary,
                             contentDescription = "Back"
                         )
                     }
@@ -50,8 +54,8 @@ fun AddEditHotelScreen(viewModel: AddEditHotelViewModel, navController: NavContr
                                   },
                         enabled = modelDidChange,
                         colors = ButtonDefaults.textButtonColors(
-                            contentColor = Color.Blue,
-                            disabledContentColor = Color.Gray
+                            contentColor = MaterialTheme.colorScheme.primary,
+                            disabledContentColor = MaterialTheme.colorScheme.tertiary
                         )
                     ) {
                         Text(
@@ -67,62 +71,83 @@ fun AddEditHotelScreen(viewModel: AddEditHotelViewModel, navController: NavContr
             modifier = Modifier
                 .padding(padding)
                 .verticalScroll(scrollState)
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(16.dp)
         ) {
             Section {
-                OutlinedTextField(
+                TextField(
                     value = hotel?.name.orEmpty(),
                     onValueChange = { viewModel.updateHotel { copy(name = it) } },
                     label = { Text("Name") },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
-                OutlinedTextField(
+                TextField(
                     value = hotel?.title.orEmpty(),
                     onValueChange = { viewModel.updateHotel { copy(title = it) } },
                     label = { Text("Title") },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
             Spacer(Modifier.height(16.dp))
             Section {
-                OutlinedTextField(
+                TextField(
                     value = hotel?.address.orEmpty(),
                     onValueChange = { viewModel.updateHotel { copy(address = it) } },
                     label = { Text("Address") },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
+                TextField(
                     value = hotel?.city.orEmpty(),
                     onValueChange = { viewModel.updateHotel { copy(city = it) } },
                     label = { Text("City") },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
+                TextField(
                     value = hotel?.state.orEmpty(),
                     onValueChange = { viewModel.updateHotel { copy(state = it) } },
                     label = { Text("State") },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
+                TextField(
                     value = hotel?.country.orEmpty(),
                     onValueChange = { viewModel.updateHotel { copy(country = it) } },
                     label = { Text("Country") },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
+                TextField(
                     value = hotel?.geo?.accuracy.orEmpty(),
                     onValueChange = { viewModel.updateHotel { copy(geo = geo.copy(accuracy = it)) } },
                     label = { Text("Accuracy") },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(
+                    TextField(
                         value = hotel?.geo?.lat?.toString().orEmpty(),
                         onValueChange = { latStr ->
                             val newLat = latStr.toDoubleOrNull()
@@ -133,10 +158,13 @@ fun AddEditHotelScreen(viewModel: AddEditHotelViewModel, navController: NavContr
                             }
                         },
                         label = { Text("Latitude") },
+                        colors = TextFieldDefaults.colors(
+                            unfocusedContainerColor = Color.Transparent
+                        ),
                         modifier = Modifier.weight(1f)
                     )
 
-                    OutlinedTextField(
+                    TextField(
                         value = hotel?.geo?.lon?.toString().orEmpty(),
                         onValueChange = { lonStr ->
                             val newLon = lonStr.toDoubleOrNull()
@@ -147,63 +175,90 @@ fun AddEditHotelScreen(viewModel: AddEditHotelViewModel, navController: NavContr
                             }
                         },
                         label = { Text("Longitude") },
+                        colors = TextFieldDefaults.colors(
+                            unfocusedContainerColor = Color.Transparent
+                        ),
                         modifier = Modifier.weight(1f)
                     )
                 }
 
-                OutlinedTextField(
+                TextField(
                     value = hotel?.phone.orEmpty(),
                     onValueChange = { viewModel.updateHotel { copy(phone = it) } },
                     label = { Text("Phone") },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
+                TextField(
                     value = hotel?.tollfree.orEmpty(),
                     onValueChange = { viewModel.updateHotel { copy(tollfree = it) } },
                     label = { Text("Toll-Free") },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
+                TextField(
                     value = hotel?.email.orEmpty(),
                     onValueChange = { viewModel.updateHotel { copy(email = it) } },
                     label = { Text("Email") },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
+                TextField(
                     value = hotel?.fax.orEmpty(),
                     onValueChange = { viewModel.updateHotel { copy(fax = it) } },
                     label = { Text("Fax") },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
+                TextField(
                     value = hotel?.url.orEmpty(),
                     onValueChange = { viewModel.updateHotel { copy(url = it) } },
                     label = { Text("Website") },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
+                TextField(
                     value = hotel?.checkin.orEmpty(),
                     onValueChange = { viewModel.updateHotel { copy(checkin = it) } },
                     label = { Text("Check-in Time") },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
+                TextField(
                     value = hotel?.checkout.orEmpty(),
                     onValueChange = { viewModel.updateHotel { copy(checkout = it) } },
                     label = { Text("Check-out Time") },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
+                TextField(
                     value = hotel?.price.orEmpty(),
                     onValueChange = { viewModel.updateHotel { copy(price = it) } },
                     label = { Text("Price") },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -254,9 +309,6 @@ fun Section(title: String? = null, content: @Composable ColumnScope.() -> Unit) 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFFF2F2F7))
-            .padding(12.dp)
 
     ) {
         title?.let { Text(text = it, fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.padding(bottom = 8.dp)) }

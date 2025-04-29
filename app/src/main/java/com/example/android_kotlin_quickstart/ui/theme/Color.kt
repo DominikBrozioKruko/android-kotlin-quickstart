@@ -11,3 +11,7 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 val CouchbaseRed = Color(0xFFED2226)
+val MyPrimary = Color(0xFF1E4BEE)
+val MyBlack = Color(0xFF19191A)
+val MyGray = Color(0xFF69696B)
+val MyWhite = Color(0xFFF8F8F8)

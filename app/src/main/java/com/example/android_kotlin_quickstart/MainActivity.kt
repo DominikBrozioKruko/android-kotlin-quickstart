@@ -23,7 +23,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AppNavGraph(homeViewModel = viewModel)
+            Android_kotlin_quickstartTheme {
+                AppNavGraph(homeViewModel = viewModel)
+            }
         }
     }
 }

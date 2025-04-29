@@ -36,6 +36,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.LocationOn
 
 @Composable
 fun HomeScreen(
@@ -49,7 +51,8 @@ fun HomeScreen(
 
 
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -76,16 +79,16 @@ fun HomeScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(CouchbaseRed)
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(WindowInsets.statusBars.asPaddingValues())
                 .height(56.dp)
-                .background(CouchbaseRed)
+                .background(MaterialTheme.colorScheme.surface)
                 .align(Alignment.TopCenter),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "Hotel management app",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.background,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.align(Alignment.Center)
@@ -102,7 +105,7 @@ fun HomeScreen(
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Add",
-                    tint = Color.White
+                    tint = MaterialTheme.colorScheme.background
                 )
             }
         }
@@ -145,8 +148,8 @@ fun SwipeableHotelCard(hotel: Hotel, onHotelSelected: (Hotel) -> Unit, onEditHot
         background = {
             val direction = dismissState.dismissDirection ?: return@SwipeToDismiss
             val color = when (direction) {
-                DismissDirection.StartToEnd -> Color.Blue
-                DismissDirection.EndToStart -> Color.Red
+                DismissDirection.StartToEnd -> MaterialTheme.colorScheme.primary
+                DismissDirection.EndToStart -> MaterialTheme.colorScheme.surface
             }
 
             val icon = when (direction) {
@@ -175,10 +178,13 @@ fun SwipeableHotelCard(hotel: Hotel, onHotelSelected: (Hotel) -> Unit, onEditHot
 
 @Composable
 fun HotelCard(hotel: Hotel,onHotelSelected: (Hotel) -> Unit) {
-    Box(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.background),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.Transparent
+        )
     ) {
         Column(
             modifier = Modifier
@@ -189,7 +195,7 @@ fun HotelCard(hotel: Hotel,onHotelSelected: (Hotel) -> Unit) {
                 ) {
                     onHotelSelected(hotel)
                 }
-                .padding(10.dp)
+                .padding(5.dp)
                 .graphicsLayer {
                     shadowElevation = 5f
                     shape = RoundedCornerShape(5.dp)
@@ -206,28 +212,46 @@ fun HotelCard(hotel: Hotel,onHotelSelected: (Hotel) -> Unit) {
                 style = TextStyle(
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.secondary
                 ),
                 modifier = Modifier.padding(bottom = 5.dp)
             )
-
-            Text(
-                text = "${hotel.address ?: ""} ${hotel.city ?: ""} ${hotel.country}",
-                style = TextStyle(
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 16.sp,
-                    color = Color.Gray
-                ),
-                modifier = Modifier.padding(bottom = 5.dp)
-            )
-
-            hotel.phone?.let {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.LocationOn,
+                    contentDescription = "Location Icon",
+                    tint = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = it,
+                    text = "${hotel.address ?: ""} ${hotel.city ?: ""} ${hotel.country}",
                     style = TextStyle(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp,
-                        color = Color.Gray
+                        color = MaterialTheme.colorScheme.tertiary
+                    ),
+                    modifier = Modifier.padding(bottom = 5.dp)
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Call,
+                    contentDescription = "Location Icon",
+                    tint = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = hotel.phone ?: "Not known",
+                    style = TextStyle(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.tertiary
                     )
                 )
             }
@@ -252,7 +276,7 @@ fun ErrorBanner(
     ) {
         Surface(
             shape = RoundedCornerShape(16.dp),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.background,
             tonalElevation = 8.dp,
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -264,7 +288,7 @@ fun ErrorBanner(
                     text = error.title,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.secondary
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -272,7 +296,7 @@ fun ErrorBanner(
                 Text(
                     text = error.message,
                     fontSize = 14.sp,
-                    color = Color.DarkGray,
+                    color = MaterialTheme.colorScheme.tertiary,
                     textAlign = TextAlign.Center
                 )
 
