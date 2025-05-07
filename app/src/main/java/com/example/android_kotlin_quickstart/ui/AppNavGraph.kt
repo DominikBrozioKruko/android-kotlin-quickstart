@@ -5,6 +5,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.android_kotlin_quickstart.data.model.Hotel
 import com.example.android_kotlin_quickstart.ui.screens.AddEditHotelScreen
 import com.example.android_kotlin_quickstart.ui.screens.HomeScreen
 import com.example.android_kotlin_quickstart.ui.screens.HotelDetailsScreen
@@ -12,12 +13,13 @@ import com.example.android_kotlin_quickstart.viewmodel.AddEditHotelViewModel
 import com.example.android_kotlin_quickstart.viewmodel.HomeViewModel
 import com.example.android_kotlin_quickstart.viewmodel.HotelDetailsViewModel
 import com.example.android_kotlin_quickstart.viewmodel.ViewMode
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
 fun AppNavGraph(
     homeViewModel: HomeViewModel,
     hotelDetailsViewModel: HotelDetailsViewModel = viewModel(),
-    addEditHotelViewModel: AddEditHotelViewModel = viewModel()
+    addEditHotelViewModel: AddEditHotelViewModel
 ) {
     val navController = rememberNavController()
 
@@ -35,7 +37,7 @@ fun AppNavGraph(
                     navController.navigate(Screen.AddEditHotelScreen.route)
                 } ,
                 onEditHotel = { hotel ->
-                    addEditHotelViewModel.setViewMode(ViewMode.Edit(hotel))
+                    addEditHotelViewModel.setViewMode(ViewMode.Edit(MutableStateFlow<Hotel?>(hotel)))
                     navController.navigate(Screen.AddEditHotelScreen.route)
                 },
             )
@@ -44,8 +46,8 @@ fun AppNavGraph(
         composable(Screen.HotelDetailsScreen.route) {
             HotelDetailsScreen(viewModel = hotelDetailsViewModel,
                 navController = navController,
-                onEditHotel = { hotel ->
-                    addEditHotelViewModel.setViewMode(ViewMode.Edit(hotel))
+                onEditHotel = { stateFlowHotel ->
+                    addEditHotelViewModel.setViewMode(ViewMode.Edit(stateFlowHotel))
                     navController.navigate(Screen.AddEditHotelScreen.route)
                 }
                 )

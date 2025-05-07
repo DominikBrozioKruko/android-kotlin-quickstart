@@ -38,6 +38,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun HomeScreen(
@@ -64,7 +65,7 @@ fun HomeScreen(
             queryState.value?.let { queryStateValue ->
                 LazyColumn {
                     items(queryStateValue) { hotel ->
-                        SwipeableHotelCard(hotel,onHotelSelected = onHotelSelected, onEditHotel = onEditHotel)
+                        SwipeableHotelCard(hotel,onHotelSelected = onHotelSelected, onEditHotel = onEditHotel,viewModel = viewModel)
                     }
                 }
             } ?: run {
@@ -123,7 +124,7 @@ fun HomeScreen(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun SwipeableHotelCard(hotel: Hotel, onHotelSelected: (Hotel) -> Unit, onEditHotel: (Hotel) -> Unit) {
+fun SwipeableHotelCard(hotel: Hotel, onHotelSelected: (Hotel) -> Unit, onEditHotel: (Hotel) -> Unit,viewModel: HomeViewModel) {
     val dismissState = rememberDismissState()
 
     LaunchedEffect(dismissState.currentValue) {
@@ -133,7 +134,7 @@ fun SwipeableHotelCard(hotel: Hotel, onHotelSelected: (Hotel) -> Unit, onEditHot
                 dismissState.reset()
             }
             dismissState.isDismissed(DismissDirection.EndToStart) -> {
-                //onDelete(item)
+                viewModel.onDeleteHotel(hotel)
                 dismissState.reset()
             }
         }

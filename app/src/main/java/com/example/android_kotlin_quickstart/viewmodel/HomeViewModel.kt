@@ -29,6 +29,13 @@ class HomeViewModel(private val context: WeakReference<Context>) : ViewModel() {
         runIt()
     }
 
+    fun onDeleteHotel(hotel: Hotel) {
+        context.get()?.let {
+            val dbManager = DBManager.getInstance(it)
+            dbManager.delete(hotel)
+        }
+    }
+
     private fun runIt(): MutableLiveData<MutableList<Hotel>?> {
         context.get()?.let {
             viewModelScope.launch(Dispatchers.IO) {
@@ -36,10 +43,6 @@ class HomeViewModel(private val context: WeakReference<Context>) : ViewModel() {
                 mgr.createDb("travel-sample")
                 mgr.createCollection("hotel")
                 mgr.replicate(it)
-                //val id = mgr.createDoc()
-                //mgr.retrieveDoc(id)
-                //mgr.updateDoc(id)
-                //mgr.queryDocs()
                 mgr.queryDocs()
                     ?.onEach { change ->
                         val hotelList: MutableList<Hotel> = mutableListOf()
@@ -49,8 +52,7 @@ class HomeViewModel(private val context: WeakReference<Context>) : ViewModel() {
                                 val jsonObject = JSONObject(jsonString)
                                 var hotelDoc = HotelDocumentModel.fromJson(jsonObject)
                                 hotelList.add(hotelDoc.hotel)
-                                Log.i("","results: ${it.keys}")
-                                /* Update UI */
+                                Log.i("","results: ${hotelDoc.hotel.name}")
                             }
                         }
                         liveQueryState.postValue(hotelList)

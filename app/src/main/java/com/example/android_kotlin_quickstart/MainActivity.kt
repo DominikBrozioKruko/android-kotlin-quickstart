@@ -14,17 +14,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.android_kotlin_quickstart.ui.AppNavGraph
 import com.example.android_kotlin_quickstart.ui.theme.Android_kotlin_quickstartTheme
 import com.example.android_kotlin_quickstart.ui.screens.HomeScreen
+import com.example.android_kotlin_quickstart.viewmodel.AddEditHotelViewModel
 import com.example.android_kotlin_quickstart.viewmodel.HomeViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
-    private val viewModel by viewModel<HomeViewModel>()
+    private val homeViewModel by viewModel<HomeViewModel>()
+    private val addEditHotelViewModel by viewModel<AddEditHotelViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             Android_kotlin_quickstartTheme {
-                AppNavGraph(homeViewModel = viewModel)
+                AppNavGraph(homeViewModel = homeViewModel,addEditHotelViewModel = addEditHotelViewModel)
             }
         }
     }

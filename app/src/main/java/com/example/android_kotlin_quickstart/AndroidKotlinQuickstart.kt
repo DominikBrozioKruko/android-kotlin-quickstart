@@ -1,6 +1,7 @@
 package com.example.android_kotlin_quickstart
 
 import android.app.Application
+import com.example.android_kotlin_quickstart.viewmodel.AddEditHotelViewModel
 import com.example.android_kotlin_quickstart.viewmodel.HomeViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -21,6 +22,7 @@ class AndroidKotlinQuickstart: Application() {
             modules(
                 module {
                     viewModel { HomeViewModel(WeakReference(this@AndroidKotlinQuickstart)) }
+                    viewModel { AddEditHotelViewModel(WeakReference(this@AndroidKotlinQuickstart))}
                 })
         }
     }

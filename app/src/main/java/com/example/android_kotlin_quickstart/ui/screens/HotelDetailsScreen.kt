@@ -21,10 +21,12 @@ import androidx.navigation.NavController
 import com.example.android_kotlin_quickstart.data.model.Hotel
 import com.example.android_kotlin_quickstart.data.model.Review
 import com.example.android_kotlin_quickstart.viewmodel.HotelDetailsViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HotelDetailsScreen(viewModel: HotelDetailsViewModel,navController: NavController,onEditHotel: (Hotel) -> Unit) {
+fun HotelDetailsScreen(viewModel: HotelDetailsViewModel,navController: NavController,onEditHotel: (MutableStateFlow<Hotel?>) -> Unit) {
     val hotel by viewModel.hotel.collectAsState()
 
     Scaffold(
@@ -48,7 +50,7 @@ fun HotelDetailsScreen(viewModel: HotelDetailsViewModel,navController: NavContro
                 actions = {
                     TextButton(
                         onClick = {
-                        hotel?.let { onEditHotel(it) }
+                        hotel?.let { onEditHotel(viewModel.hotel) }
                         },
                         colors = ButtonDefaults.textButtonColors(
                             contentColor = MaterialTheme.colorScheme.primary

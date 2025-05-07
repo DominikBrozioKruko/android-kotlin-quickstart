@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 class HotelDetailsViewModel : ViewModel() {
 
     private val _hotel = MutableStateFlow<Hotel?>(null)
-    val hotel: StateFlow<Hotel?> = _hotel
+    val hotel: MutableStateFlow<Hotel?> = _hotel
 
     fun setHotel(hotel: Hotel) {
         _hotel.value = hotel

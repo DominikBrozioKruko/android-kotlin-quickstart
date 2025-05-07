@@ -25,7 +25,9 @@ import com.couchbase.lite.newConfig
 import com.couchbase.lite.queryChangeFlow
 import com.couchbase.lite.replicatorChangesFlow
 import com.example.android_kotlin_quickstart.data.model.AppError
+import com.example.android_kotlin_quickstart.data.model.Hotel
 import kotlinx.coroutines.flow.Flow
+import org.json.JSONObject
 import java.net.URI
 import java.util.concurrent.atomic.AtomicReference
 
@@ -59,55 +61,42 @@ class DBManager {
         Log.i(TAG, "Collection created: $collection")
     }
 
-    // <.>
-    // Create a new document (i.e. a record)
-    // and save it in a collection in the database.
-    fun createDoc(): String {
+    fun create(hotel: Hotel) {
+        val hotelJson: JSONObject = hotel.toJson()
         val mutableDocument = MutableDocument()
-            .setFloat("version", 2.0f)
-            .setString("language", "Java")
+            .setJSON(hotelJson.toString())
         collection?.save(mutableDocument)
-        return mutableDocument.id
     }
 
-    // <.>
-    // Retrieve immutable document and log the database generated
-    // document ID and some document properties
-    fun retrieveDoc(docId: String) {
-        collection?.getDocument(docId)
-            ?.let {
-                Log.i(TAG, "Document ID :: ${docId}")
-                Log.i(TAG, "Learning :: ${it.getString("language")}")
+    fun delete(hotel: Hotel) {
+        val database = database ?: return
+        val query: Query = database.createQuery("SELECT META().id FROM inventory.hotel WHERE type = 'hotel' AND id = ${hotel.id}")
+        query.execute().use { rs ->
+            rs.forEach {
+                val docId = it.getString("id")
+                val doc = docId?.let { it1 -> collection?.getDocument(it1) }
+                doc?.let { it1 -> collection?.delete(it1) }
             }
-            ?: Log.i(TAG, "No such document :: $docId")
+        }
     }
-
-    // <.>
-    // Retrieve immutable document and update `language` property
-    // document ID and some document properties
-    fun updateDoc(docId: String) {
-        collection?.getDocument(docId)?.let {
-            collection?.save(
-                it.toMutable().setString("language", "Kotlin")
-            )
+    fun update(hotel: Hotel) {
+        val database = database ?: return
+        val query: Query = database.createQuery("SELECT META().id FROM inventory.hotel WHERE type = 'hotel' AND id = ${hotel.id}")
+        query.execute().use { rs ->
+            rs.forEach {
+                val docId = it.getString("id")
+                val doc = docId?.let { it1 -> collection?.getDocument(it1) }
+                doc?.let { it1 -> collection?.save(it1.toMutable().setJSON(hotel.toJson().toString())) }
+            }
         }
     }
 
-    // <.>
-    // Create a query to fetch documents with language == Kotlin.
     fun queryDocs(): Flow<QueryChange>? {
         token?.remove()
         val coll = collection ?: return null
         val database = database ?: return null
         val query: Query = database.createQuery("SELECT * FROM inventory.hotel WHERE type = 'hotel' ORDER BY name ASC")
-//        token = query.addChangeListener { change ->
-//            change.results?.let { rs ->
-//                rs.forEach {
-//                    Log.d("","results: ${it.keys}")
-//                }
-//            }
-//        }
-        // Listen to query changes.
+
         val changes = query.queryChangeFlow()
         query.execute()
         return changes
