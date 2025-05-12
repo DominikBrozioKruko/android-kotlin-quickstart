@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,7 +57,9 @@ fun AddEditHotelScreen(viewModel: AddEditHotelViewModel, navController: NavContr
                         colors = ButtonDefaults.textButtonColors(
                             contentColor = MaterialTheme.colorScheme.primary,
                             disabledContentColor = MaterialTheme.colorScheme.tertiary
-                        )
+                        ),
+                        modifier = Modifier.
+                            testTag("addEditHotelButton")
                     ) {
                         Text(
                             text = "SAVE",
@@ -82,7 +85,9 @@ fun AddEditHotelScreen(viewModel: AddEditHotelViewModel, navController: NavContr
                     colors = TextFieldDefaults.colors(
                         unfocusedContainerColor = Color.Transparent
                     ),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("hotelNameTextField")
                 )
                 TextField(
                     value = hotel?.title.orEmpty(),
