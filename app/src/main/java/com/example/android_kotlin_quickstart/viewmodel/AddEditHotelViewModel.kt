@@ -1,30 +1,33 @@
 package com.example.android_kotlin_quickstart.viewmodel
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.android_kotlin_quickstart.data.model.Hotel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import androidx.compose.runtime.*
-import androidx.lifecycle.viewModelScope
 import com.example.android_kotlin_quickstart.DBManager
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
-import kotlin.random.Random
 
 class AddEditHotelViewModel(private val context: WeakReference<Context>) : ViewModel() {
 
-    init {
-
-    }
-
-    private var _viewMode : ViewMode = ViewMode.Add
+    private var _viewMode: ViewMode = ViewMode.Add
     var originalHotel = MutableStateFlow<Hotel?>(null)
     val hotel = MutableStateFlow<Hotel?>(null)
     val title = MutableStateFlow<String>("")
-
+    
+    // Loading and error states
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+    
+    private val _errorState = MutableStateFlow<String?>(null)
+    val errorState: StateFlow<String?> = _errorState
 
     fun setViewMode(viewMode: ViewMode) {
         _viewMode = viewMode
@@ -47,17 +50,38 @@ class AddEditHotelViewModel(private val context: WeakReference<Context>) : ViewM
             SharingStarted.Eagerly,
             false
         )
+
     fun onAcceptButton() {
-        context.get()?.let { context ->
-            val dbManager = DBManager.getInstance(context)
-            when (_viewMode) {
-                is ViewMode.Add -> hotel.value?.let { dbManager.create(it) }
-                is ViewMode.Edit -> hotel.value?.let {
-                    (_viewMode as ViewMode.Edit).hotel.value = it
-                    dbManager.update(it) }
+        viewModelScope.launch {
+            try {
+                _isLoading.value = true
+                _errorState.value = null
+                
+                context.get()?.let { ctx ->
+                    val dbManager = DBManager.getInstance(ctx)
+                    when (_viewMode) {
+                        is ViewMode.Add -> {
+                            hotel.value?.let { 
+                                dbManager.create(it)
+                                Log.i(TAG, "Hotel created successfully: ${it.name}")
+                            }
+                        }
+                        is ViewMode.Edit -> {
+                            hotel.value?.let { updatedHotel ->
+                                (_viewMode as ViewMode.Edit).hotel.value = updatedHotel
+                                dbManager.update(updatedHotel)
+                                Log.i(TAG, "Hotel updated successfully: ${updatedHotel.name}")
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error saving hotel", e)
+                _errorState.value = "Failed to save hotel: ${e.localizedMessage}"
+            } finally {
+                _isLoading.value = false
             }
         }
-
     }
 
     fun updateHotel(update: Hotel.() -> Hotel) {
@@ -65,7 +89,14 @@ class AddEditHotelViewModel(private val context: WeakReference<Context>) : ViewM
             hotel.value = it.update()
         }
     }
-
+    
+    fun clearError() {
+        _errorState.value = null
+    }
+    
+    companion object {
+        private const val TAG = "AddEditHotelViewModel"
+    }
 }
 
 // View mode sealed class
