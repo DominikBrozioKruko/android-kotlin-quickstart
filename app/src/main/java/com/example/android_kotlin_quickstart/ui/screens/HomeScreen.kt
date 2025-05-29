@@ -40,17 +40,25 @@ import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Search
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
     onHotelSelected: (Hotel) -> Unit,
     onAddHotel:() -> Unit,
     onEditHotel: (Hotel) -> Unit) {
-    val uiState = remember { viewModel.uiState }
-    var queryState = viewModel.liveQueryState.observeAsState(initial = null)
+    
+    // Collect StateFlow values
+    val uiState by viewModel.uiState.collectAsState()
+    val hotelList by viewModel.hotelList.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val errorState by viewModel.errorState.collectAsState()
+    val searchText by viewModel.searchText.collectAsState()
     val errorMessage by ErrorManager.errorState.collectAsState()
-
 
     Box(
         modifier = Modifier
@@ -60,65 +68,193 @@ fun HomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 56.dp)
+                .padding(top = 120.dp) // Increased padding to account for taller header
                 .padding(WindowInsets.statusBars.asPaddingValues())
         ) {
-            queryState.value?.let { queryStateValue ->
-                LazyColumn {
-                    items(queryStateValue) { hotel ->
-                        SwipeableHotelCard(hotel,onHotelSelected = onHotelSelected, onEditHotel = onEditHotel,viewModel = viewModel)
+            // Sort by name row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp)
+                    .testTag("SortByNameRow"),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Sort by name",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.Gray,
+                    modifier = Modifier
+                        .clickable { viewModel.onSortButtonTapped() }
+                        .padding(end = 4.dp)
+                )
+                Icon(
+                    imageVector = if (viewModel.descendingList) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = "Sort",
+                    tint = Color.Gray,
+                    modifier = Modifier.clickable { viewModel.onSortButtonTapped() }
+                )
+            }
+            
+            // Content area
+            when {
+                isLoading && hotelList.isEmpty() -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator()
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = uiState,
+                                style = MaterialTheme.typography.bodyLarge,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
                 }
-            } ?: run {
-                Text(
-                    text = uiState,
-                    style = MaterialTheme.typography.headlineMedium
-                )
+                hotelList.isNotEmpty() -> {
+                    LazyColumn {
+                        items(hotelList) { hotel ->
+                            SwipeableHotelCard(
+                                hotel = hotel,
+                                onHotelSelected = onHotelSelected,
+                                onEditHotel = onEditHotel,
+                                viewModel = viewModel
+                            )
+                        }
+                    }
+                }
+                else -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = if (searchText.isNotBlank()) "No hotels found matching '$searchText'" else "No hotels available",
+                            style = MaterialTheme.typography.headlineMedium,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
             }
         }
 
-
+        // Header with search bar
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(WindowInsets.statusBars.asPaddingValues())
-                .height(56.dp)
+                .height(120.dp) // Increased height to accommodate search bar
                 .background(MaterialTheme.colorScheme.surface)
-                .align(Alignment.TopCenter),
-            contentAlignment = Alignment.Center
+                .align(Alignment.TopCenter)
         ) {
-            Text(
-                text = "Hotel management app",
-                color = MaterialTheme.colorScheme.background,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.Center)
-            )
-
-            IconButton(
-                onClick = {
-                    onAddHotel()
-                },
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 5.dp)
-                    .testTag("HomeScreenPlusButton")
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Top
             ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add",
-                    tint = MaterialTheme.colorScheme.background
+                // Top row with title and plus button
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .padding(horizontal = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Hotel management app",
+                        color = MaterialTheme.colorScheme.background,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                    
+                    IconButton(
+                        onClick = { onAddHotel() },
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .testTag("HomeScreenPlusButton")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add",
+                            tint = MaterialTheme.colorScheme.background
+                        )
+                    }
+                }
+                
+                // Spacer(modifier = Modifier.height(8.dp))
+                
+                // Search bar in the header
+                OutlinedTextField(
+                    value = searchText,
+                    onValueChange = { viewModel.onSearchTextChanged(it) },
+                    placeholder = { 
+                        Text(
+                            "Search by Name",
+                            color = Color.Gray,
+                            fontSize = 16.sp
+                        ) 
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search Icon",
+                            tint = Color.Gray
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .padding(horizontal = 16.dp, vertical = 2.dp)
+                        .testTag("SearchBar"),
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    textStyle = TextStyle(
+                        fontSize = 16.sp,
+                        color = Color.Black
+                    ),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.White,
+                        focusedContainerColor = Color.White,
+                        unfocusedBorderColor = Color.Transparent,
+                        focusedBorderColor = Color.Transparent,
+                        cursorColor = Color.Black,
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+                        focusedPlaceholderColor = Color.Gray,
+                        unfocusedPlaceholderColor = Color.Gray
+                    )
                 )
             }
         }
 
+        // Error handling
         Box(modifier = Modifier.fillMaxSize()) {
             errorMessage?.let { errorModel ->
                 ErrorBanner(
                     error = errorModel,
                     onDismiss = { ErrorManager.clearError() }
                 )
+            }
+            
+            // ViewModel error state
+            errorState?.let { error ->
+                Snackbar(
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    action = {
+                        TextButton(onClick = { viewModel.clearError() }) {
+                            Text("Dismiss")
+                        }
+                    }
+                ) {
+                    Text(error)
+                }
             }
         }
     }
